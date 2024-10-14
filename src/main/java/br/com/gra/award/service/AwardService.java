@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import br.com.gra.award.dto.AwardDto;
@@ -22,6 +25,11 @@ public class AwardService {
 
     private final MovieService movieService;
 
+    /**
+     * Find the interval between two awards
+     *
+     * @return interval between two awards
+     */
     public IntervalDto findIntervalAward() {
 
         List<AwardDto> minAwards = new ArrayList<>();
@@ -35,6 +43,12 @@ public class AwardService {
                 .build();
     }
 
+    /**
+     * Create awards
+     *
+     * @param minAwards list of minimum awards
+     * @param maxAwards list of maximum awards
+     */
     private void createAwards(List<AwardDto> minAwards, List<AwardDto> maxAwards) {
 
         Map<String, List<Integer>> producerAwards = getProducerAwards();
@@ -49,6 +63,10 @@ public class AwardService {
                         .followingWin(years.get(i + 1))
                         .build();
 
+                /*
+                    * If is first award or interval is smaller than the smallest, clear the list and add the award
+                    * If interval is equal to the smallest, add the award
+                 */
                 if (minAwards.isEmpty() || interval < minAwards.get(0).getInterval()) {
                     minAwards.clear();
                     minAwards.add(award);
@@ -56,6 +74,10 @@ public class AwardService {
                     minAwards.add(award);
                 }
 
+                /*
+                    * If is first award or interval is greater than the largest, clear the list and add the award
+                    * If interval is equal to the largest, add the award
+                 */
                 if (maxAwards.isEmpty() || interval > maxAwards.get(0).getInterval()) {
                     maxAwards.clear();
                     maxAwards.add(award);
@@ -66,17 +88,35 @@ public class AwardService {
         });
     }
 
+    /**
+     * Get producer awards
+     *
+     * @return producer awards
+     */
     private Map<String, List<Integer>> getProducerAwards() {
 
-        List<MovieModel> movieList = movieService.findAllWinners();
-
         Map<String, List<Integer>> producerAwards = new HashMap<>();
-        movieList.forEach(movie ->
-            movie.getProducers().forEach(producer ->
-                    producerAwards.computeIfAbsent(producer.getName(), k -> new ArrayList<>()).add(movie.getReleaseYear())
-            )
-        );
+        int page = 0;
 
+        while (true) {
+            Pageable pageable = PageRequest.of(page, 10);
+            Page<MovieModel> moviePage = movieService.findAllWinners(pageable);
+
+            List<MovieModel> movieList = moviePage.getContent();
+            if (movieList.isEmpty()) {
+                break;
+            }
+
+            // Create a map with producer and years
+            movieList.forEach(movie ->
+                    movie.getProducers().forEach(producer ->
+                            producerAwards.computeIfAbsent(producer.getName(), k -> new ArrayList<>()).add(movie.getReleaseYear())
+                    )
+            );
+            page++;
+        }
+
+        // Remove producers with only one award and sort years
         producerAwards.entrySet().removeIf(entry -> entry.getValue().size() < 2);
         producerAwards.forEach((producer, years) -> years.sort(Integer::compareTo));
 

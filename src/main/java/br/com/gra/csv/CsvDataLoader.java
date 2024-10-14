@@ -1,11 +1,18 @@
 package br.com.gra.csv;
 
+import static br.com.gra.movie.model.MovieCsv.PRODUCERS;
+import static br.com.gra.movie.model.MovieCsv.STUDIOS;
+import static br.com.gra.movie.model.MovieCsv.TITLE;
+import static br.com.gra.movie.model.MovieCsv.WINNER;
+import static br.com.gra.movie.model.MovieCsv.YEAR;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -30,14 +37,13 @@ public class CsvDataLoader {
 
     private static final String TITLE_SEPARATOR = ";";
     private static final String FIELD_SEPARATOR = ",";
-    private static final int YEAR = 0;
-    private static final int TITLE = 1;
-    private static final int STUDIOS = 2;
-    private static final int PRODUCERS = 3;
-    private static final int WINNER = 4;
+    private static final int CHUNK_SIZE = 50;
 
     private final MovieService movieService;
 
+    /**
+     * Load CSV data into database
+     */
     @PostConstruct
     public void loadCsvData() {
         log.info("Loading CSV data...");
@@ -49,15 +55,18 @@ public class CsvDataLoader {
 
             loadTitle(bufferedReader);
 
-            String line;
-            while ((line = bufferedReader.readLine()) != null) {
-                processLine(line);
-            }
+            loadData(bufferedReader);
         } catch (IOException e) {
             log.error("File not found or error reading file: {}", e.getMessage());
         }
     }
 
+    /**
+     * Load title from CSV file
+     *
+     * @param bufferedReader bufferedReader
+     * @throws IOException if title not found or invalid format
+     */
     private void loadTitle(BufferedReader bufferedReader) throws IOException {
         String title = bufferedReader.readLine();
         if (title == null) {
@@ -70,27 +79,64 @@ public class CsvDataLoader {
         }
     }
 
-    private void processLine(String line) {
-        try {
-            String[] fields = line.split(TITLE_SEPARATOR);
-            if (fields.length < WINNER) {
-                throw new IOException("Invalid line format");
+    /**
+     * Load data from CSV file
+     *
+     * @param bufferedReader bufferedReader
+     * @throws IOException if error reading file
+     */
+    private void loadData(BufferedReader bufferedReader) throws IOException {
+
+        List<MovieModel> moviesChunk = new ArrayList<>();
+        String line;
+        while ((line = bufferedReader.readLine()) != null) {
+            moviesChunk.add(processLine(line));
+
+            if (moviesChunk.size() == CHUNK_SIZE) {
+                movieService.saveAll(moviesChunk);
+                moviesChunk.clear();
             }
+        }
 
-            MovieModel movie = MovieModel.builder()
-                    .releaseYear(Integer.parseInt(fields[YEAR]))
-                    .title(fields[TITLE])
-                    .studios(parseStudios(fields[STUDIOS]))
-                    .producers(parseProducers(fields[PRODUCERS]))
-                    .winner(fields.length == 5 && !fields[WINNER].isEmpty() && fields[WINNER].equalsIgnoreCase("yes"))
-                    .build();
-
-            movieService.save(movie);
-        } catch (Exception e) {
-            log.error("ErroException processing line '{}': {}", line, e.getMessage());
+        if (!moviesChunk.isEmpty()) {
+            movieService.saveAll(moviesChunk);
         }
     }
 
+    /**
+     * Process line from CSV file
+     *
+     * @param line line
+     * @return movie model
+     */
+    private MovieModel processLine(String line) {
+        try {
+            String[] fields = line.split(TITLE_SEPARATOR);
+            if (fields.length < WINNER.getIndex()) {
+                throw new IOException("Invalid line format");
+            }
+
+            return MovieModel.builder()
+                    .releaseYear(Integer.parseInt(fields[YEAR.getIndex()]))
+                    .title(fields[TITLE.getIndex()])
+                    .studios(parseStudios(fields[STUDIOS.getIndex()]))
+                    .producers(parseProducers(fields[PRODUCERS.getIndex()]))
+                    .winner(fields.length == 5 &&
+                            !fields[WINNER.getIndex()].isEmpty() &&
+                            fields[WINNER.getIndex()].equalsIgnoreCase("yes"))
+                    .build();
+        } catch (Exception e) {
+            log.error("ErroException processing line '{}': {}", line, e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Parse producers
+     *
+     * @param field field
+     * @return list of producers
+     */
     private List<ProducerModel> parseProducers(String field) {
 
         if (Objects.isNull(field) || field.isEmpty()) {
@@ -104,6 +150,12 @@ public class CsvDataLoader {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Parse studios
+     *
+     * @param field field
+     * @return list of studios
+     */
     private List<StudioModel> parseStudios(String field) {
 
         if (Objects.isNull(field) || field.isEmpty()) {

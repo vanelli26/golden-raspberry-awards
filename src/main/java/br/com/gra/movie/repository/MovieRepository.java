@@ -1,7 +1,7 @@
 package br.com.gra.movie.repository;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -10,5 +10,5 @@ import br.com.gra.movie.model.MovieModel;
 @Repository
 public interface MovieRepository extends JpaRepository<MovieModel, Long> {
 
-    List<MovieModel> findByWinnerTrue();
+    Page<MovieModel> findByWinnerTrue(Pageable pageable);
 }
