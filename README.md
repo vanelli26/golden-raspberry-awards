@@ -35,9 +35,3 @@ Esta API utiliza autenticação básica. Para acessar os endpoints protegidos, v
 
 - **username**: O nome de usuário para autenticação (por exemplo, `gra`).
 - **password**: A senha correspondente (por exemplo, `vanelli`).
-
-### Exemplo de Requisição com cURL
-
-```bash
-curl -u gra:vanelli http://localhost:8080/api/exemplo
-```

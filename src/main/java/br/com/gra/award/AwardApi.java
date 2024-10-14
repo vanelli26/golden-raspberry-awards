@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import io.swagger.v3.oas.annotations.Operation;
 
-@RequestMapping("/api/internal/award")
+@RequestMapping("/api/interval/award")
 public interface AwardApi {
 
     @Operation(
