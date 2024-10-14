@@ -1,13 +1,18 @@
 package br.com.gra.award.service;
 
+import static br.com.gra.config.CacheConfig.INTERVAL;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import br.com.gra.award.dto.AwardDto;
@@ -23,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AwardService {
 
+    public static final int UM_MINUTO = 60 * 1000;
     private final MovieService movieService;
 
     /**
@@ -30,6 +36,7 @@ public class AwardService {
      *
      * @return interval between two awards
      */
+    @Cacheable(value = INTERVAL, unless = "#result.min.size() == 0 && #result.max.size() == 0")
     public IntervalDto findIntervalAward() {
 
         List<AwardDto> minAwards = new ArrayList<>();
@@ -121,5 +128,11 @@ public class AwardService {
         producerAwards.forEach((producer, years) -> years.sort(Integer::compareTo));
 
         return producerAwards;
+    }
+
+    @Scheduled(fixedRate = UM_MINUTO)
+    @CacheEvict(value = INTERVAL, allEntries = true)
+    public void clearCache() {
+        log.info("Clearing cache");
     }
 }
