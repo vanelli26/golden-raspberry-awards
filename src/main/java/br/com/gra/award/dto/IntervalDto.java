@@ -1,4 +1,4 @@
-package br.com.gra.award;
+package br.com.gra.award.dto;
 
 import java.util.List;
 

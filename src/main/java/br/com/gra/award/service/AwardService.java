@@ -1,4 +1,4 @@
-package br.com.gra.award;
+package br.com.gra.award.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,8 +7,10 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-import br.com.gra.movie.MovieModel;
-import br.com.gra.movie.MovieService;
+import br.com.gra.award.dto.AwardDto;
+import br.com.gra.award.dto.IntervalDto;
+import br.com.gra.movie.model.MovieModel;
+import br.com.gra.movie.service.MovieService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

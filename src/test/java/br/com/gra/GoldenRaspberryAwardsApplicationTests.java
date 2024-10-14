@@ -15,7 +15,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import br.com.gra.award.IntervalDto;
+import br.com.gra.award.dto.IntervalDto;
 
 @SpringBootTest
 @AutoConfigureMockMvc

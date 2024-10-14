@@ -1,7 +1,10 @@
-package br.com.gra.award;
+package br.com.gra.award.endpoint;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+
+import br.com.gra.award.dto.IntervalDto;
+import br.com.gra.award.service.AwardService;
 
 import lombok.RequiredArgsConstructor;
 

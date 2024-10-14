@@ -1,8 +1,10 @@
-package br.com.gra.award;
+package br.com.gra.award.endpoint;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import br.com.gra.award.dto.IntervalDto;
 
 import io.swagger.v3.oas.annotations.Operation;
 

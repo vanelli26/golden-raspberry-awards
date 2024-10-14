@@ -14,10 +14,10 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import br.com.gra.movie.MovieModel;
-import br.com.gra.movie.MovieService;
-import br.com.gra.producer.ProducerModel;
-import br.com.gra.studio.StudioModel;
+import br.com.gra.movie.model.MovieModel;
+import br.com.gra.movie.service.MovieService;
+import br.com.gra.producer.model.ProducerModel;
+import br.com.gra.studio.model.StudioModel;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -28,13 +28,14 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class CsvDataLoader {
 
-    public static final String TITLE_SEPARATOR = ";";
-    public static final int YEAR = 0;
-    public static final int TITLE = 1;
-    public static final int STUDIOS = 2;
-    public static final int PRODUCERS = 3;
-    public static final int WINNER = 4;
-    public static final String FIELD_SEPARATOR = ",";
+    private static final String TITLE_SEPARATOR = ";";
+    private static final String FIELD_SEPARATOR = ",";
+    private static final int YEAR = 0;
+    private static final int TITLE = 1;
+    private static final int STUDIOS = 2;
+    private static final int PRODUCERS = 3;
+    private static final int WINNER = 4;
+
     private final MovieService movieService;
 
     @PostConstruct
@@ -79,7 +80,7 @@ public class CsvDataLoader {
             MovieModel movie = MovieModel.builder()
                     .releaseYear(Integer.parseInt(fields[YEAR]))
                     .title(fields[TITLE])
-                    .studios(paseStudios(fields[STUDIOS]))
+                    .studios(parseStudios(fields[STUDIOS]))
                     .producers(parseProducers(fields[PRODUCERS]))
                     .winner(fields.length == 5 && !fields[WINNER].isEmpty() && fields[WINNER].equalsIgnoreCase("yes"))
                     .build();
@@ -103,7 +104,7 @@ public class CsvDataLoader {
                 .collect(Collectors.toList());
     }
 
-    private List<StudioModel> paseStudios(String field) {
+    private List<StudioModel> parseStudios(String field) {
 
         if (Objects.isNull(field) || field.isEmpty()) {
             return Collections.emptyList();

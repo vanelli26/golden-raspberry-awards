@@ -1,11 +1,14 @@
-package br.com.gra.movie;
+package br.com.gra.movie.service;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 
-import br.com.gra.producer.ProducerRepository;
-import br.com.gra.studio.StudioRepository;
+import br.com.gra.movie.model.MovieModel;
+import br.com.gra.movie.repository.MovieRepository;
+import br.com.gra.producer.repository.ProducerRepository;
+import br.com.gra.studio.repository.StudioRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -25,12 +28,14 @@ public class MovieService {
 
         movie.setProducers(
                 movie.getProducers().stream()
+                        .filter(producer -> Objects.isNull(producer.getId()))
                         .map(producer -> producerRepository.findByName(producer.getName())
                                 .orElseGet(() -> producerRepository.save(producer)))
                         .toList());
 
         movie.setStudios(
                 movie.getStudios().stream()
+                        .filter(studio -> Objects.isNull(studio.getId()))
                         .map(studio -> studioRepository.findByName(studio.getName())
                                 .orElseGet(() -> studioRepository.save(studio)))
                         .toList());

@@ -1,4 +1,4 @@
-package br.com.gra.award;
+package br.com.gra.award.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AwardIntervalDomain {
+public class AwardDto {
 
     private String producer;
     private Integer interval;

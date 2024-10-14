@@ -1,4 +1,4 @@
-package br.com.gra.producer;
+package br.com.gra.studio.model;
 
 import java.util.Objects;
 
@@ -20,8 +20,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "producer")
-public class ProducerModel {
+@Table(name = "studio")
+public class StudioModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,9 +35,8 @@ public class ProducerModel {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ProducerModel)) return false;
-        ProducerModel that = (ProducerModel) o;
-        return Objects.equals(name, that.name);
+        if (!(o instanceof StudioModel that)) return false;
+        return name.equals(that.name);
     }
 
     @Override

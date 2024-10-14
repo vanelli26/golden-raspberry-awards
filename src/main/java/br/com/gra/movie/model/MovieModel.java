@@ -1,9 +1,9 @@
-package br.com.gra.movie;
+package br.com.gra.movie.model;
 
 import java.util.List;
 
-import br.com.gra.producer.ProducerModel;
-import br.com.gra.studio.StudioModel;
+import br.com.gra.producer.model.ProducerModel;
+import br.com.gra.studio.model.StudioModel;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
